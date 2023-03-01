@@ -28,7 +28,7 @@ class LordBot {
 
     }
 
-    say(number: string, message: string){
+    async say(number: string, message: string){
 
         whatsProvider.sendMessage(number,message);
 
