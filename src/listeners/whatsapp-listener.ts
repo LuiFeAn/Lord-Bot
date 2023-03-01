@@ -3,9 +3,7 @@ import { IlordOwnerProps } from "../interfaces/lord-bot";
 import { whatsProvider } from "../providers/whatsapp-provider";
 import { whatsEvents } from "../events/whatsapp-events";
 
-export default function whatsListener(owner: IlordOwnerProps, stateManager: () => any){
-
-    whatsProvider.initialize();
+export default async function whatsListener(owner: IlordOwnerProps, stateManager: () => any){
 
     whatsProvider.on('qr', whatsEvents.onQrCode);
 
@@ -16,5 +14,7 @@ export default function whatsListener(owner: IlordOwnerProps, stateManager: () =
     whatsProvider.on('ready', whatsEvents.onReady);
 
     whatsProvider.on('message', message => whatsEvents.onMessage( message, owner, stateManager ));
+
+    await whatsProvider.initialize();
 
 }

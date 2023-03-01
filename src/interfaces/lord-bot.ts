@@ -1,3 +1,4 @@
+import { Contact } from 'whatsapp-web.js';
 
 export interface ILordBot {
 
@@ -7,7 +8,7 @@ export interface ILordBot {
 }
 
 export interface IlordBotStates {
-    
+
     name: string;
     execute: (owner: IlordOwnerProps) => any
 }
@@ -16,6 +17,7 @@ export interface IlordOwnerProps {
 
     number: string,
     message?: string,
+    contacts?: Contact []
 
 }
 
