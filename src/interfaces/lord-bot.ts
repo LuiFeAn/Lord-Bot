@@ -2,15 +2,15 @@
 export interface ILordBot {
 
     name: string;
-    states: IlordBotStates []
-    owner: IlordOwnerProps
+    states: IlordBotStates [];
+    owner: IlordOwnerProps;
 
 }
 
 export interface IlordBotStates {
     
     name: string;
-    execute: () => any
+    execute: (message: string) => any
 }
 
 export interface IlordOwnerProps {
