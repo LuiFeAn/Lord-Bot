@@ -6,3 +6,7 @@ node_modules
 ## Auth
 
 .wwebjs_auth
+
+## Variáveis de ambiente
+
+.env
