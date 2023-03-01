@@ -34,7 +34,7 @@ export const whatsEvents = {
 
     },
 
-    onMessage (message: Message, owner: IlordOwnerProps, stateManager: any){
+    onMessage (message: Message, owner: IlordOwnerProps, stateManager: () => any){
 
         const { from: number, body } = message;
 
