@@ -1,24 +1,44 @@
 import LordBot from "./lib/bot";
 
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 const bot = new LordBot({
 
-    name:'Shazam',
+    name: process.env.LORD_BOT_NAME as string,
     owner:{
-        number:'559196319494@c.us',
-        state:'initial'
+        number: process.env.OWNER_NUMBER as string,
+        state: process.env.OWNER_INITIAL_STATE as string
     },
-    states:[
-        {
-            name:'initial',
-            execute(){
-                console.log('teste')
-            }
-
-        }
-    ]
     
 });
 
 bot.initialize();
+
+bot.stateCreator([
+    {
+        name:'initial',
+        execute(owner){
+            
+            if( owner.message === 'teste'){
+
+                bot.stateChanger('nex level');
+
+            }
+
+        }
+
+    },
+    {
+        name:'nex level',
+        execute(owner){
+
+            bot.say(owner.number,'você foi para o nex level')
+
+        }
+    }
+    
+]);
 
 
