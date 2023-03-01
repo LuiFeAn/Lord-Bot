@@ -11,34 +11,60 @@ const bot = new LordBot({
         number: process.env.OWNER_NUMBER as string,
         state: process.env.OWNER_INITIAL_STATE as string
     },
-    
+
 });
 
 bot.initialize();
 
+let selectedCustomMessage: string = '';
+
 bot.stateCreator([
     {
         name:'initial',
-        execute(owner){
-            
-            if( owner.message === 'teste'){
+        async execute(owner){
 
-                bot.stateChanger('nex level');
+            const { number } = owner;
 
-            }
+            await bot.say(number,`Olá ! me chamo ${bot.name} e meu trabalho é avisar a todos que você está em live no momento!`)
+
+            bot.say(number,'Primeiramente, qual mensagem personalizada você gostaria de manter ?');
+
+            bot.stateChanger('customMessage')
 
         }
-
     },
     {
-        name:'nex level',
-        execute(owner){
+        name:'command',
+        execute(owner) {
 
-            bot.say(owner.number,'você foi para o nex level')
+            console.log('executou')
 
-        }
+        },
+    },
+    {
+        name:'customMessage',
+        async execute(owner) {
+
+            const { number, message } = owner;
+
+            await bot.say(number,`Ótimo ! então a mensagem será "${message}"`);
+
+            selectedCustomMessage = message!;
+
+        },
+    },
+    {
+        name:'sendMessage',
+        execute(owner) {
+
+            const { contacts } = owner;
+
+            contacts?.forEach( contact => {
+
+
+            })
+
+        },
     }
-    
-]);
-
+])
 
