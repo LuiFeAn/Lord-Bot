@@ -36,7 +36,9 @@ git clone https://github.com/LuiFeAn/LordBot
 `Crie um arquivo .env com seguinte variável de ambiente e insira sua key da API do ChatGPT:`
 
 LORD_BOT_NAME = Nome que será dado ao BOT
+
 OWNER_NUMBER = Número do responsável pelo BOT
+
 OWNER_INITIAL_STATE= Estado inicial
 
 `Observação:`
