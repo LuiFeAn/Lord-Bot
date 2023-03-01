@@ -3,7 +3,9 @@ import { IlordOwnerProps } from "../interfaces/lord-bot";
 import { whatsProvider } from "../providers/whatsapp-provider";
 import { whatsEvents } from "../events/whatsapp-events";
 
-export default function whatsListener(owner: IlordOwnerProps, stateManager: any){
+export default function whatsListener(owner: IlordOwnerProps, stateManager: () => any){
+
+    whatsProvider.initialize();
 
     whatsProvider.on('qr', whatsEvents.onQrCode);
 
