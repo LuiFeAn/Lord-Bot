@@ -2,29 +2,29 @@ import { whatsProvider } from "../providers/whatsapp-provider";
 
 import { ILordBot, IlordBotStates } from '../interfaces/lord-bot';
 
-import { whatsEvents } from '../events/whatsapp-events';
-
 import whatsListener from "../listeners/whatsapp-listener";
 
 class LordBot {
 
-    private name
-    owner
+    name
+
+    private owner
+
     private states: IlordBotStates []
 
-    constructor( { name, owner, states }: ILordBot ){
+    constructor( { name, owner }: ILordBot ){
 
         this.name = name;
+
         this.owner = owner
-        this.states = states
+
+        this.states = [];
 
     }
 
     async initialize(){
 
-        whatsProvider.initialize();
-
-        whatsListener(this.owner,this.stateManager);
+        whatsListener(this.owner, () => this.stateManager( this.states ));
 
     }
 
@@ -34,19 +34,33 @@ class LordBot {
 
     }
 
-    stateManager(){
+    private stateManager(states: IlordBotStates []){
 
-        this.states.forEach( state => {
+        states.forEach( state => {
 
             const { name, execute } = state;
 
             if( this.owner.state === name ){
 
-                execute(this.owner.message!);
+                const { state, ...rest } = this.owner;
+
+                execute(rest);
 
             }
 
         })
+
+    }
+
+    stateCreator(states: IlordBotStates []){
+
+        this.states = states;
+
+    }
+
+    stateChanger(state: string){
+
+        this.owner.state = state;
 
     }
 
