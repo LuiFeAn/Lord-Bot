@@ -83,7 +83,7 @@ class LordBot {
 
             if( this.owner.state === name ){
 
-                return execute(rest);
+                execute(rest);
 
             }
 
