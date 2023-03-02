@@ -24,8 +24,7 @@ Tecnologias e bibliotecas que utilizei durante este projeto:
 
 ## 💻 Projeto
 
-Projeto feito a fim de ser uma biblioteca cujo qual auxiliará na criação de BOTS para WhatsApp
-
+Estou desenvolvendo este projeto para facilitar a criação de BOTS para WhatsApp, utilizando uma sintaxe mais simples e clara
 
 ## 👨‍💻 Instalação
 
@@ -41,21 +40,21 @@ OWNER_NUMBER = Número do responsável pelo BOT
 
 OWNER_INITIAL_STATE= Estado inicial
 
-`Observação:`
-
-1 - Por enquanto esta biblioteca tem suporte somente ao responsável pelo BOT. Contudo, pretendo inserir suporte a multiplos usuários a longo prazo
-
 `Instale todos os pacotes:`
 
 npm install || yarn install
 
-## Dev 🔥
+## Ambiente de desenvolvimento 🔥
 
 npm run dev
 
 ## Build 🔥🍕
 
 npm run build || yarn run build
+
+`Observação:`
+
+README em construção. Logo irei apresentar aqui exemplos de como utilizar a biblioteca e seus recursos
 
 
 
