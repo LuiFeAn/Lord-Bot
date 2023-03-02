@@ -8,13 +8,13 @@ export const whatsEvents = {
 
      onReady(){
 
-        console.log('O LordBOT está preparado para uso');
+        console.log('LordBOT is ready for use');
 
     },
 
      onQrCode(code: string){
 
-        console.log('Por favor, utilize o QrCODE abaixo para vincular seu número ao LordBOT')
+        console.log('Please use the QrCODE below to link your number to LordBOT')
 
         qrcode.generate(code,{
             small:true
@@ -24,13 +24,13 @@ export const whatsEvents = {
 
      onAuth(client: ClientSession){
 
-        console.log('LordBot foi autenticado com sucesso');
+        console.log('LordBot has been successfully authenticated');
 
     },
 
      onFail(message: string){
 
-        console.log('Um erro ocorreu durante o vinculo do LordBOT ao sue número');
+        console.log('An error occurred while linking LordBOT to your number');
 
     },
 
