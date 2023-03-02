@@ -3,6 +3,8 @@ import { whatsProvider } from "../providers/whatsapp-provider";
 import { ILordBot, IlordBotStates } from '../interfaces/lord-bot';
 
 import whatsListener from "../listeners/whatsapp-listener";
+import BotError from "../errors/bot-err";
+import { IBotError } from "../interfaces/bot-err";
 
 class LordBot {
 
@@ -16,15 +18,17 @@ class LordBot {
 
         this.name = name;
 
-        this.owner = owner
+        this.owner = owner;
+
+        this.owner.number = `${owner.number}@c.us`;
 
         this.states = [];
 
-        this.owner.contacts = []
+        this.owner.contacts = [];
 
     }
 
-    /** Inicializa o bot e todos seus recursos */
+    /** Initializes the bot and all its resources */
     async initialize(){
 
         await whatsListener(this.owner, () => this.stateManager( this.states ));
@@ -37,25 +41,39 @@ class LordBot {
 
     }
 
-    /** Envia uma mensagem ao número específicado */
+    /** Send a message to the specified number */
     async say(number: string, message: string){
 
         whatsProvider.sendMessage(number,message);
 
     }
 
-    /** Gerencia os estados criados */
-    private stateManager(states: IlordBotStates []){
+    /** Manages created states */
+    private async stateManager(states: IlordBotStates []){
 
         const { state, ...rest } = this.owner;
 
         const anyState = states.find( state => (
-            state.name
+            state.forAnyState === true
         ));
 
         if( anyState ){
 
-            anyState.execute(rest);
+            try {
+
+                anyState.execute(rest)
+
+            }catch(err){
+
+                const error = (err as IBotError)
+
+                const { to, message } = error;
+
+                await this.say(to,message);
+
+
+            }
+
 
         }
 
@@ -65,7 +83,7 @@ class LordBot {
 
             if( this.owner.state === name ){
 
-                execute(rest);
+                return execute(rest);
 
             }
 
@@ -73,26 +91,19 @@ class LordBot {
 
     }
 
-    /** Cria novos estados */
+    /** Create new states */
     stateCreator(states: IlordBotStates []){
 
         this.states = states;
 
     }
 
-    /** Atualiza o estado do owner */
+    /** Update owner state */
     stateChanger(state: string){
 
         this.owner.state = state;
 
     }
-
-    inAnyState(){
-
-
-
-    }
-
 
 
 }
