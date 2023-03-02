@@ -10,6 +10,7 @@ export interface ILordBot {
 export interface IlordBotStates {
 
     name: string;
+    forAnyState?: boolean
     execute: (owner: IlordOwnerProps) => any
 }
 
