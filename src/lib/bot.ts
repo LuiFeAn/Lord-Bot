@@ -3,7 +3,7 @@ import { whatsProvider } from "../providers/whatsapp-provider";
 import { ILordBot, IlordBotStates } from '../interfaces/lord-bot';
 
 import whatsListener from "../listeners/whatsapp-listener";
-import BotError from "../errors/bot-err";
+
 import { IBotError } from "../interfaces/bot-err";
 
 class LordBot {
