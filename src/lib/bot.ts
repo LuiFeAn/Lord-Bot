@@ -51,43 +51,44 @@ class LordBot {
     /** Manages created states */
     private async stateManager(states: IlordBotStates []){
 
-        const { state, ...rest } = this.owner;
 
-        const anyState = states.find( state => (
-            state.forAnyState === true
-        ));
+        try {
 
-        if( anyState ){
+            const { state, ...rest } = this.owner;
 
-            try {
+            const anyState = states.find( state => (
+                state.forAnyState === true
+            ));
+
+            if( anyState ){
 
                 anyState.execute(rest)
 
-            }catch(err){
-
-                const error = (err as IBotError)
-
-                const { to, message } = error;
-
-                await this.say(to,message);
-
-
             }
+
+            states.forEach(  async state => {
+
+                const { name, execute } = state;
+
+                if( this.owner.state === name ){
+
+                    return execute(rest);
+
+                }
+
+            });
+
+
+        }catch(err){
+
+            const error = (err as IBotError)
+
+            const { to, message } = error;
+
+            await this.say(to,message);
 
 
         }
-
-        states.forEach(  async state => {
-
-            const { name, execute } = state;
-
-            if( this.owner.state === name ){
-
-                return execute(rest);
-
-            }
-
-        })
 
     }
 
