@@ -1,20 +1,29 @@
 import { whatsProvider } from "../providers/whatsapp-provider";
 
-import { ILordBot, IlordBotStates } from '../interfaces/lord-bot';
+import { ILordBotConstructor, IlordBotStates } from '../interfaces/lord-bot';
+import UserManagment from "./users-management";
 
-import whatsListener from "../listeners/whatsapp-listener";
-import BotError from "../errors/bot-err";
+import qrcode from 'qrcode-terminal';
+
 import { IBotError } from "../interfaces/bot-err";
+import { Message } from "whatsapp-web.js";
+
+import env from 'dotenv';
+import { IUser } from "../interfaces/user-magagment";
+
+env.config();
 
 class LordBot {
 
     name
 
-    private owner
+    private owner;
 
     private states: IlordBotStates []
 
-    constructor( { name, owner }: ILordBot ){
+    private multiplyUsers: UserManagment | false;
+
+    constructor( { name, owner, multiplyUsers }: ILordBotConstructor  ){
 
         this.name = name;
 
@@ -26,12 +35,76 @@ class LordBot {
 
         this.owner.contacts = [];
 
+        this.multiplyUsers = multiplyUsers instanceof UserManagment ? multiplyUsers : false;
+
+
     }
 
     /** Initializes the bot and all its resources */
     async initialize(){
 
-        await whatsListener(this.owner, () => this.stateManager( this.states ));
+        whatsProvider.on('qr', (code: string) => {
+
+            qrcode.generate(code,{
+                small:true
+            });
+
+        });
+
+        whatsProvider.on('authenticated', (code: string) => {
+
+            console.log('LordBOT is ready for use');
+
+        });
+    
+        whatsProvider.on('auth_failure', () => {
+
+            console.log('An error occurred while linking LordBOT to your number');
+
+        });
+    
+        whatsProvider.on('ready', () => {
+            console.log('LordBot has been successfully authenticated');
+        });
+    
+        whatsProvider.on('message', (message: Message) => {
+
+            const { from: number, body } = message;
+
+            let otherUser;
+
+            if( this.multiplyUsers && number != this.owner.number ){
+
+                const userInMemory  = this.multiplyUsers.getUser(number);
+
+                if( !userInMemory ){
+
+                    this.multiplyUsers.addUser({
+                        number,
+                        state: process.env.INITIAL_STATE as string,
+                    })
+
+                }
+
+                otherUser = this.multiplyUsers.getUser(number);
+
+            }
+
+            let state = this.multiplyUsers ? this.owner.number === number ? this.owner.state | otherUser!.state;
+
+
+            if( number === this.owner.number || this.multiplyUsers ){
+
+                this.stateManager(number,body,{
+                    ownerState: this.owner.state,
+                    userState,
+                });
+
+            }
+
+        });
+    
+        await whatsProvider.initialize();
 
         if( this.owner.contacts?.length === 0 ){
 
@@ -49,45 +122,52 @@ class LordBot {
     }
 
     /** Manages created states */
-    private async stateManager(states: IlordBotStates []){
+    private async stateManager(number: string,message: string, state: string){
 
-        const { state, ...rest } = this.owner;
+        try {
 
-        const anyState = states.find( state => (
-            state.forAnyState === true
-        ));
 
-        if( anyState ){
+            const anyState = this.states.find( state => (
+                state.forAnyState === true
+            ));
 
-            try {
+            if( anyState ){
 
-                anyState.execute(rest)
-
-            }catch(err){
-
-                const error = (err as IBotError)
-
-                const { to, message } = error;
-
-                await this.say(to,message);
-
+                anyState.execute({
+                    number,
+                    message,
+                    contacts: this.owner.contacts!
+                })
 
             }
+
+            this.states.forEach(  async state => {
+
+                const { name, execute } = state;
+
+                if( this.owner.state === name ){
+
+                    return execute({
+                        number,
+                        message,
+                        contacts: this.owner.contacts!
+                    });
+
+                }
+
+            });
+
+
+        }catch(err){
+
+            const error = (err as IBotError)
+
+            const { to, message } = error;
+
+            await this.say(to,message);
 
 
         }
-
-        states.forEach(  async state => {
-
-            const { name, execute } = state;
-
-            if( this.owner.state === name ){
-
-                execute(rest);
-
-            }
-
-        })
 
     }
 

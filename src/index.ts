@@ -2,6 +2,7 @@ import LordBot from "./lib/bot";
 
 import env from 'dotenv';
 import BotError from "./errors/bot-err";
+import UsersManager from "./lib/users-management";
 
 env.config();
 
@@ -10,7 +11,8 @@ const bot = new LordBot({
     owner:{
         number: process.env.OWNER_NUMBER as string,
         state: process.env.OWNER_INITIAL_STATE as string,
-    }
+    },
+    multiplyUsers: new UsersManager()
 });
 
 bot.initialize();
