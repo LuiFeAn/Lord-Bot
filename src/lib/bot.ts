@@ -1,6 +1,6 @@
 import { whatsProvider } from "../providers/whatsapp-provider";
 
-import { ILordBotConstructor, IlordBotStates } from '../interfaces/lord-bot';
+import { ILordBot, ILordBotConstructor, IlordBotStates } from '../interfaces/lord-bot';
 import UserManagment from "./users-management";
 
 import qrcode from 'qrcode-terminal';
@@ -13,7 +13,7 @@ import { IUser } from "../interfaces/user-magagment";
 
 env.config();
 
-class LordBot {
+class LordBot implements ILordBot {
 
     name
 
@@ -71,7 +71,7 @@ class LordBot {
 
             const { from: number, body } = message;
 
-            let otherUser;
+            let otherUser: IUser | undefined;
 
             if( this.multiplyUsers && number != this.owner.number ){
 
@@ -90,15 +90,12 @@ class LordBot {
 
             }
 
-            let state = this.multiplyUsers ? this.owner.number === number ? this.owner.state | otherUser!.state;
+            let state = this.multiplyUsers ? this.owner.state : otherUser!.state;
 
 
             if( number === this.owner.number || this.multiplyUsers ){
 
-                this.stateManager(number,body,{
-                    ownerState: this.owner.state,
-                    userState,
-                });
+                this.stateManager(number,body,state);
 
             }
 
