@@ -2,7 +2,10 @@
 
 export interface IUser {
 
-    number: string
-    state: string
+    number: string;
+
+    state: string;
+
+    role: string;
 
 }
