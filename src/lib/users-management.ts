@@ -18,7 +18,7 @@ class UsersManager {
 
     getUser(number: string){
 
-        const user = this.users.find( user => user.number === number);
+        const user = this.users.find( user => user?.number === number);
 
         return user;
 
