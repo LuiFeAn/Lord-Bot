@@ -71,29 +71,48 @@ class LordBot implements ILordBot {
 
             const { from: number, body } = message;
 
-            let otherUser: IUser | undefined;
+            let currentUserInfos: IUser | undefined;
 
-            if( this.multiplyUsers && number != this.owner.number ){
+            if( this.multiplyUsers ){
 
-                const userInMemory  = this.multiplyUsers.getUser(number);
+                const  recursiveFunctionToFindUser = (): void => {
 
-                if( !userInMemory ){
+                    if(this.multiplyUsers instanceof UserManagment ){
 
-                    this.multiplyUsers.addUser({
-                        number,
-                        state: process.env.INITIAL_STATE as string,
-                    })
+                       currentUserInfos = this.multiplyUsers.getUser(number);
+
+                    }
+
+                    if( !currentUserInfos ){
+
+                        const userRole = this.owner.number === number ? 'admin' : 'common_user';
+
+                        if( this.multiplyUsers instanceof UserManagment ){
+
+                            this.multiplyUsers.addUser({
+                                number,
+                                state: process.env.INITIAL_STATE as string,
+                                role: userRole
+                            });
+
+                        }
+
+                        return recursiveFunctionToFindUser();
+
 
                 }
 
-                otherUser = this.multiplyUsers.getUser(number);
+                recursiveFunctionToFindUser();
+
+                }
+
 
             }
 
-            let state = this.multiplyUsers ? this.owner.state : otherUser!.state;
-
 
             if( number === this.owner.number || this.multiplyUsers ){
+
+                const state = this.multiplyUsers ? this.owner.state : currentUserInfos!.state;
 
                 this.stateManager(number,body,state);
 
