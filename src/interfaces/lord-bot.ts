@@ -3,6 +3,16 @@ import UserManagment from '../lib/users-management';
 
 export interface ILordBot {
 
+    name: string;
+
+    initialize(): void;
+
+    say(number: string, message: string): Promise<void>
+
+    stateCreator(states: IlordBotStates []): void
+
+    stateChanger(state: string): void
+
 
 
 }
