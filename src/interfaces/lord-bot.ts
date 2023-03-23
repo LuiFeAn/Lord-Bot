@@ -9,9 +9,11 @@ export interface ILordBot {
 
     say(number: string, message: string): Promise<void>
 
-    stateCreator(states: IlordBotStates []): void
+    onState(states: IlordBotStates []): void
 
-    stateChanger(state: string): void
+    onAnyState(state: IlordBotStates): void
+
+    stateChanger(number: string, state: string): void
 
 
 
@@ -28,8 +30,11 @@ export interface ILordBotConstructor {
 export interface IlordBotStates {
 
     name: string;
-    forAnyState?: boolean
-    execute: ({number,message,contacts}: { number: string, message: string, contacts: Contact []}) => any
+    execute: ({ user }: { user: {
+        number: string,
+        stateChanger(state: string): void,
+        message: string
+    }}) => any
 }
 
 export interface IlordOwnerProps {
@@ -38,6 +43,7 @@ export interface IlordOwnerProps {
     contacts?: Contact []
 
 }
+
 
 export interface ILordOWnerPropsWithState extends IlordOwnerProps {
 
