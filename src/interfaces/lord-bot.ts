@@ -1,5 +1,5 @@
 import { Contact } from 'whatsapp-web.js';
-import UserManagment from '../lib/users-management';
+import UserManagment from '../lib/users-manager';
 
 export interface ILordBot {
 

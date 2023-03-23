@@ -1,7 +1,7 @@
 import { whatsProvider } from "../providers/whatsapp-provider";
 
 import { ILordBot, ILordBotConstructor, IlordBotStates } from '../interfaces/lord-bot';
-import UserManagment from "./users-management";
+import UserManagment from "./users-manager";
 
 import qrcode from 'qrcode-terminal';
 
@@ -56,17 +56,17 @@ class LordBot implements ILordBot {
             console.log('LordBOT is ready for use');
 
         });
-    
+
         whatsProvider.on('auth_failure', () => {
 
             console.log('An error occurred while linking LordBOT to your number');
 
         });
-    
+
         whatsProvider.on('ready', () => {
             console.log('LordBot has been successfully authenticated');
         });
-    
+
         whatsProvider.on('message', (message: Message) => {
 
             const { from: number, body } = message;
@@ -119,7 +119,7 @@ class LordBot implements ILordBot {
             }
 
         });
-    
+
         await whatsProvider.initialize();
 
         if( this.owner.contacts?.length === 0 ){

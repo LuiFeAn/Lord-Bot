@@ -2,7 +2,7 @@ import LordBot from "./lib/bot";
 
 import env from 'dotenv';
 import BotError from "./errors/bot-err";
-import UsersManager from "./lib/users-management";
+import UsersManager from "./lib/users-manager";
 
 env.config();
 
