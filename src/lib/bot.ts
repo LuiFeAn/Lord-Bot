@@ -103,21 +103,13 @@ class LordBot implements ILordBot {
 
                     }
 
+                    createFindOrUpdateUser();
+
 
                 }
 
-                const state = this.multiplyUsers ? this.owner.state : currentUserInfos!.state;
-
-                console.log(currentUserInfos);
-
-                currentUserInfos!.state = state;
-
-                currentUserInfos!.message = body;
-
-                createFindOrUpdateUser();
-
-
             }
+
 
             this.stateManager(currentUserInfos!);
 
@@ -145,28 +137,32 @@ class LordBot implements ILordBot {
 
         const { state, number, message } = user;
 
+        const execiton = () => {
+
+            return {
+
+                user: {
+                    number,
+                    stateChanger: (state: string) => {
+
+                        this.stateChanger(number,state);
+
+                    },
+                    message,
+                }
+
+            }
+
+        }
+
         try {
 
 
-            const anyState = this.states.find( state => (
-                state.name === 'options'
-            ));
+            const anyState = this.states.find( state => state.name === 'options');
 
             if( anyState ){
 
-                anyState.execute({
-
-                    user: {
-                        number,
-                        stateChanger: (state: string) => {
-
-                            this.stateChanger(number,state);
-
-                        },
-                        message,
-                    }
-
-                })
+                anyState.execute(execiton())
 
             }
 
@@ -176,26 +172,14 @@ class LordBot implements ILordBot {
 
                 if( state === name ){
 
-                    return execute({
-
-                        user: {
-                            number,
-                            stateChanger: (state: string) => {
-
-                                this.stateChanger(number,state);
-
-                            },
-                            message,
-                        },
-
-                    });
+                    execute(execiton());
 
                 }
 
             });
 
 
-        }catch(err){
+        } catch(err){
 
             const error = (err as IBotError)
 
