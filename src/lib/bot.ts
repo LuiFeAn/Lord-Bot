@@ -1,7 +1,6 @@
 import { whatsProvider } from "../providers/whatsapp-provider";
 
 import { ILordBot, ILordBotConstructor, IlordBotStates } from '../interfaces/lord-bot';
-import UserManagment from "./users-manager";
 
 import qrcode from 'qrcode-terminal';
 
@@ -11,17 +10,19 @@ import { Message } from "whatsapp-web.js";
 import env from 'dotenv';
 import { IUser } from "../interfaces/user-magagment";
 
+import UsersManager from "./users-manager";
+
 env.config();
 
 class LordBot implements ILordBot {
 
     name
 
-    private owner;
+    owner;
 
     private states: IlordBotStates []
 
-    private multiplyUsers: UserManagment | false;
+    private multiplyUsers: UsersManager | false;
 
     constructor( { name, owner, multiplyUsers }: ILordBotConstructor  ){
 
@@ -35,7 +36,7 @@ class LordBot implements ILordBot {
 
         this.owner.contacts = [];
 
-        this.multiplyUsers = multiplyUsers instanceof UserManagment ? multiplyUsers : false;
+        this.multiplyUsers = multiplyUsers instanceof UsersManager ? multiplyUsers : false;
 
 
     }
@@ -75,9 +76,9 @@ class LordBot implements ILordBot {
 
             if( this.multiplyUsers ){
 
-                const  recursiveFunctionToFindUser = (): void => {
+                const  createFindOrUpdateUser = (): void => {
 
-                    if(this.multiplyUsers instanceof UserManagment ){
+                    if( this.multiplyUsers instanceof UsersManager ){
 
                        currentUserInfos = this.multiplyUsers.getUser(number);
 
@@ -87,36 +88,38 @@ class LordBot implements ILordBot {
 
                         const userRole = this.owner.number === number ? 'admin' : 'common_user';
 
-                        if( this.multiplyUsers instanceof UserManagment ){
+                        if( this.multiplyUsers instanceof UsersManager ){
 
                             this.multiplyUsers.addUser({
                                 number,
                                 state: process.env.INITIAL_STATE as string,
-                                role: userRole
+                                role: userRole,
+                                message: body
                             });
 
                         }
 
-                        return recursiveFunctionToFindUser();
+                        return createFindOrUpdateUser();
+
+                    }
 
 
                 }
-
-                recursiveFunctionToFindUser();
-
-                }
-
-
-            }
-
-
-            if( number === this.owner.number || this.multiplyUsers ){
 
                 const state = this.multiplyUsers ? this.owner.state : currentUserInfos!.state;
 
-                this.stateManager(number,body,state);
+                console.log(currentUserInfos);
+
+                currentUserInfos!.state = state;
+
+                currentUserInfos!.message = body;
+
+                createFindOrUpdateUser();
+
 
             }
+
+            this.stateManager(currentUserInfos!);
 
         });
 
@@ -138,35 +141,53 @@ class LordBot implements ILordBot {
     }
 
     /** Manages created states */
-    private async stateManager(number: string,message: string, state: string){
+    private async stateManager(user: IUser){
+
+        const { state, number, message } = user;
 
         try {
 
 
             const anyState = this.states.find( state => (
-                state.forAnyState === true
+                state.name === 'options'
             ));
 
             if( anyState ){
 
                 anyState.execute({
-                    number,
-                    message,
-                    contacts: this.owner.contacts!
+
+                    user: {
+                        number,
+                        stateChanger: (state: string) => {
+
+                            this.stateChanger(number,state);
+
+                        },
+                        message,
+                    }
+
                 })
 
             }
 
-            this.states.forEach(  async state => {
+            this.states.forEach(  async st => {
 
-                const { name, execute } = state;
+                const { name, execute } = st;
 
-                if( this.owner.state === name ){
+                if( state === name ){
 
                     return execute({
-                        number,
-                        message,
-                        contacts: this.owner.contacts!
+
+                        user: {
+                            number,
+                            stateChanger: (state: string) => {
+
+                                this.stateChanger(number,state);
+
+                            },
+                            message,
+                        },
+
                     });
 
                 }
@@ -187,17 +208,32 @@ class LordBot implements ILordBot {
 
     }
 
-    /** Create new states */
-    stateCreator(states: IlordBotStates []){
+    /** Create states */
+    onState(states: IlordBotStates []){
 
         this.states = states;
 
     }
 
-    /** Update owner state */
-    stateChanger(state: string){
+    //** Create a state that execute in any moment  */
+    onAnyState(state: IlordBotStates ){
 
-        this.owner.state = state;
+        state.name = 'options';
+
+        this.states.push(state);
+
+    }
+
+    /** Update owner state */
+    stateChanger(number: string, state: string){
+
+        if( this.multiplyUsers instanceof UsersManager ){
+
+            const user = this.multiplyUsers.getUser(number);
+
+            user!.state = state;
+
+        }
 
     }
 
