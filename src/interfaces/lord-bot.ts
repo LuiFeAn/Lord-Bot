@@ -1,5 +1,4 @@
 import { Contact } from 'whatsapp-web.js';
-import UserManagment from '../lib/users-manager';
 
 export interface ILordBot {
 
@@ -22,32 +21,27 @@ export interface ILordBot {
 export interface ILordBotConstructor {
 
     name: string;
-    owner: ILordOWnerPropsWithState;
-    multiplyUsers?: UserManagment | false;
+    owner: ILordOwnerConstuctor;
+    multiplyUsers?: boolean
 
 }
 
 export interface IlordBotStates {
 
     name: string;
-    execute: ({ user }: { user: {
+    execute: ({ user, owner }: { user: {
         number: string,
         stateChanger(state: string): void,
         message: string
-    }}) => any
-}
-
-export interface IlordOwnerProps {
-
-    number: string,
-    contacts?: Contact []
-
+    }, owner: ILordOwnerConstuctor }) => any
 }
 
 
-export interface ILordOWnerPropsWithState extends IlordOwnerProps {
+export interface ILordOwnerConstuctor  {
 
-    state: string
+   contacts?: Contact []
+
+   number: string;
 
 }
 
