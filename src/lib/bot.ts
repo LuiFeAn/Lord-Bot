@@ -22,7 +22,9 @@ class LordBot implements ILordBot {
 
     private states: IlordBotStates []
 
-    private multiplyUsers: UsersManager | false;
+    private multiplyUsers;
+
+    userManager: UsersManager;
 
     constructor( { name, owner, multiplyUsers }: ILordBotConstructor  ){
 
@@ -36,7 +38,9 @@ class LordBot implements ILordBot {
 
         this.owner.contacts = [];
 
-        this.multiplyUsers = multiplyUsers instanceof UsersManager ? multiplyUsers : false;
+        this.multiplyUsers = multiplyUsers;
+
+        this.userManager = new UsersManager();
 
 
     }
@@ -72,46 +76,55 @@ class LordBot implements ILordBot {
 
             const { from: number, body } = message;
 
-            let currentUserInfos: IUser | undefined;
+            const  createFindOrUpdateUser = (): IUser | void => {
 
-            if( this.multiplyUsers ){
+                const user = this.userManager.getUser(number);
+    
+                if( !user ){
 
-                const  createFindOrUpdateUser = (): void => {
+                    if( this.multiplyUsers ){
+    
+                        const userRole = this.owner.number === number ? 
+                        'admin' : 
+                        'common_user';
+    
+                        this.userManager.addUser({
+                            number,
+                            state: process.env.INITIAL_STATE as string,
+                            role: userRole,
+                            message: body
+                        });
 
-                    if( this.multiplyUsers instanceof UsersManager ){
-
-                       currentUserInfos = this.multiplyUsers.getUser(number);
-
+                        return createFindOrUpdateUser();
+                        
+    
                     }
 
-                    if( !currentUserInfos ){
+                    if( this.owner.number === number ){
 
-                        const userRole = this.owner.number === number ? 'admin' : 'common_user';
-
-                        if( this.multiplyUsers instanceof UsersManager ){
-
-                            this.multiplyUsers.addUser({
-                                number,
-                                state: process.env.INITIAL_STATE as string,
-                                role: userRole,
-                                message: body
-                            });
-
-                        }
+                        this.userManager.addUser({
+                            number: this.owner.number,
+                            state: process.env.INITIAL_STATE as string,
+                            role: 'admin',
+                            message: body
+                        });
 
                         return createFindOrUpdateUser();
 
                     }
-
-                    createFindOrUpdateUser();
-
-
+    
+    
                 }
 
+                user!.message = body;
+    
+                this.stateManager(user!);
+    
+    
             }
 
+            createFindOrUpdateUser();
 
-            this.stateManager(currentUserInfos!);
 
         });
 
@@ -125,6 +138,7 @@ class LordBot implements ILordBot {
 
     }
 
+
     /** Send a message to the specified number */
     async say(number: string, message: string){
 
@@ -133,7 +147,7 @@ class LordBot implements ILordBot {
     }
 
     /** Manages created states */
-    private async stateManager(user: IUser){
+    private async stateManager(user: IUser  ){
 
         const { state, number, message } = user;
 
@@ -149,7 +163,8 @@ class LordBot implements ILordBot {
 
                     },
                     message,
-                }
+                },
+                owner: this.owner,
 
             }
 
@@ -211,13 +226,9 @@ class LordBot implements ILordBot {
     /** Update owner state */
     stateChanger(number: string, state: string){
 
-        if( this.multiplyUsers instanceof UsersManager ){
+        const user = this.userManager.getUser(number);
 
-            const user = this.multiplyUsers.getUser(number);
-
-            user!.state = state;
-
-        }
+        user!.state = state;
 
     }
 
