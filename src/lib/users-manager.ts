@@ -24,7 +24,7 @@ class UsersManager {
 
     }
 
-    getAllUsers(){
+    get allUsers(){
 
         return this.users;
 
