@@ -32,17 +32,17 @@ Estou desenvolvendo este projeto para facilitar a criação de BOTS para WhatsAp
 
 git clone https://github.com/LuiFeAn/LordBot
 
-`Crie um arquivo .env com as seguinte variáveis de ambiente:`
-1
-### LORD_BOT_NAME = Nome que será dado ao BOT.
+### `Crie um arquivo .env com as seguinte variáveis de ambiente:`
+
+#### LORD_BOT_NAME = Nome que será dado ao BOT.
 
 `OBS: É importante informar, pois os privilégios de ADMIN serão atríbuidos a este número`
 
-### OWNER_NUMBER = Número do responsável pelo BOT. 
+#### OWNER_NUMBER = Número do responsável pelo BOT. 
 
 `OBS: Esta variável é opcional, caso você não a informe, o estado inicial será definido como "initial"`
 
-### INITIAL_STATE= Estado inicial onde um usuário iniciará 
+#### INITIAL_STATE= Estado inicial onde um usuário iniciará 
 
 `Instale todos os pacotes:`
 
