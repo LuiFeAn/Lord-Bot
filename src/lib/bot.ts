@@ -90,7 +90,7 @@ class LordBot implements ILordBot {
     
                         this.userManager.addUser({
                             number,
-                            state: process.env.INITIAL_STATE as string,
+                            state: process.env.INITIAL_STATE as string || 'initial',
                             role: userRole,
                             message: body
                         });
