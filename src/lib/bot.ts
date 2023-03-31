@@ -224,7 +224,7 @@ class LordBot implements ILordBot {
     }
 
     /** Update owner state */
-    stateChanger(number: string, state: string){
+    private stateChanger(number: string, state: string){
 
         const user = this.userManager.getUser(number);
 
