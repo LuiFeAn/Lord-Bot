@@ -38,9 +38,11 @@ git clone https://github.com/LuiFeAn/LordBot
 LORD_BOT_NAME = Nome que será dado ao BOT.
 
 `OBS: É importante informar, pois os privilégios de ADMIN serão atríbuidos a este número`
+
 OWNER_NUMBER = Número do responsável pelo BOT. 
 
 `OBS: Esta variável é opcional, caso você não a informe, o estado inicial será definido como "initial"`
+
 INITIAL_STATE= Estado inicial onde um usuário iniciará 
 
 `Instale todos os pacotes:`
