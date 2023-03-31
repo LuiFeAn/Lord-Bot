@@ -12,10 +12,6 @@ export interface ILordBot {
 
     onAnyState(state: IlordBotStates): void
 
-    stateChanger(number: string, state: string): void
-
-
-
 }
 
 export interface ILordBotConstructor {
