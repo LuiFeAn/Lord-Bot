@@ -74,7 +74,7 @@ class LordBot implements ILordBot {
 
         whatsProvider.on('message', (message: Message) => {
 
-            const { from: number, body } = message;
+            const { from: number, body, reply } = message;
 
             const  createFindOrUpdateUser = (): IUser | void => {
 
@@ -214,7 +214,7 @@ class LordBot implements ILordBot {
 
     }
 
-    //** Create a state that execute in any moment  */
+    //** Function executed whenever a user sends a message, regardless of the current state. A state is basically the level where a user is  */
     onAnyState(state: IlordBotStates ){
 
         state.name = 'options';

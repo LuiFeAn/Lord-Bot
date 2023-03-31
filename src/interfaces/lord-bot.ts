@@ -29,8 +29,14 @@ export interface ILordBotConstructor {
 export interface IlordBotStates {
 
     name: string;
+     /** 
+           Function that performs a certain action according to the current state of a user
+      */
     execute: ({ user, owner }: { user: {
         number: string,
+        /** 
+            Switches the current state of a user to another state
+         */
         stateChanger(state: string): void,
         message: string
     }, owner: ILordOwnerConstuctor }) => any
