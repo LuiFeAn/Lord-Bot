@@ -1,4 +1,4 @@
-import { Contact } from 'whatsapp-web.js';
+import whatsapp from 'whatsapp-web.js';
 
 export interface ILordBot {
 
@@ -41,9 +41,18 @@ export interface IlordBotStates {
 
 export interface ILordOwnerConstuctor  {
 
-   contacts?: Contact []
+   contacts?: whatsapp.Contact []
 
    number: string;
+
+}
+
+export interface IGpt {
+
+    /** 
+           Defines which type of API you would like to use. The "Official" uses the official OpenAI server, the "unofficial" uses a third-party proxy
+      */
+    type: 'official' | 'unofficial'
 
 }
 
