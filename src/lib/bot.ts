@@ -228,30 +228,29 @@ export default class LordBot implements ILordBot {
 
         'official': async () => {
 
-
-            if( !process.env.OPENAI_API_KEY ){
-
-                return 'No key has been defined so that I can connect to the OpenAI API'
-
-            }
-
             const response = await officialGptService.sendQuestion(message);
 
-            return response.text;
+            if( typeof response != "string" ){
+                
+                return response.text;
+                
+            }
+
+            return response;
 
         },
 
         'unofficial': async () => {
 
-            if( !process.env.OPENAI_ACESS_TOKEN ){
-
-                return 'No access token set so I can connect to OpenAI services'
-
-            }
-
             const response = await unofficialGptService.sendQuestion(message);
 
-            return response.text;
+            if( typeof response != "string" ){
+                
+                return response.text;
+                
+            }
+
+            return response;
 
         }
 
