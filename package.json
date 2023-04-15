@@ -1,16 +1,18 @@
 {
   "name": "lordbot",
+  "type": "module",
   "version": "1.0.0",
   "description": "Biblioteca criada para facilitar a criação de bots para whatsapp",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build":"tsc",
+    "build": "tsc",
     "dev": "nodemon"
   },
   "author": "Luis Fernando",
   "license": "ISC",
   "dependencies": {
+    "chatgpt": "^5.2.2",
     "dotenv": "^16.0.3",
     "qrcode-terminal": "^0.12.0",
     "whatsapp-web.js": "^1.19.4"
