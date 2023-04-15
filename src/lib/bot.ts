@@ -1,20 +1,26 @@
-import { whatsProvider } from "../providers/whatsapp-provider";
+import { whatsProvider } from '../providers/whatsapp-provider.js';
 
-import { ILordBot, ILordBotConstructor, IlordBotStates } from '../interfaces/lord-bot';
+import { ILordBot, ILordBotConstructor, IlordBotStates, IGpt } from '../interfaces/lord-bot.js';
 
 import qrcode from 'qrcode-terminal';
 
-import { IBotError } from "../interfaces/bot-err";
-import { Message } from "whatsapp-web.js";
+import { IBotError } from '../interfaces/bot-err.js';
+
+import whatsapp from "whatsapp-web.js";
 
 import env from 'dotenv';
-import { IUser } from "../interfaces/user-magagment";
 
-import UsersManager from "./users-manager";
+import { IUser } from '../interfaces/user-magagment.js';
+
+import UsersManager from './users-manager.js';
+
+import officialGptService from '../services/official-gpt-service.js';
+
+import unofficialGptService from "../services/unofficial-gpt-service.js";
 
 env.config();
 
-class LordBot implements ILordBot {
+export default class LordBot implements ILordBot {
 
     name
 
@@ -72,7 +78,7 @@ class LordBot implements ILordBot {
             console.log('LordBot has been successfully authenticated');
         });
 
-        whatsProvider.on('message', (message: Message) => {
+        whatsProvider.on('message', (message: whatsapp.Message) => {
 
             const { from: number, body, reply } = message;
 
@@ -214,6 +220,47 @@ class LordBot implements ILordBot {
 
     }
 
+
+    /** Use an API linked to chatGPT to answer different questions */
+    gpt(message: string, { type }: IGpt){
+
+       const verifyType = {
+
+        'official': async () => {
+
+
+            if( !process.env.OPENAI_API_KEY ){
+
+                return 'No key has been defined so that I can connect to the OpenAI API'
+
+            }
+
+            const response = await officialGptService.sendQuestion(message);
+
+            return response.text;
+
+        },
+
+        'unofficial': async () => {
+
+            if( !process.env.OPENAI_ACESS_TOKEN ){
+
+                return 'No access token set so I can connect to OpenAI services'
+
+            }
+
+            const response = await unofficialGptService.sendQuestion(message);
+
+            return response.text;
+
+        }
+
+    }
+
+    return verifyType[type]();
+
+    }
+
     //** Function executed whenever a user sends a message, regardless of the current state. A state is basically the level where a user is  */
     onAnyState(state: IlordBotStates ){
 
@@ -235,4 +282,3 @@ class LordBot implements ILordBot {
 
 }
 
-export default LordBot
