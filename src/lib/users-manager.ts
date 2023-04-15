@@ -1,4 +1,4 @@
-import { IUser } from "../interfaces/user-magagment"
+import { IUser } from "../interfaces/user-magagment.js"
 
 class UsersManager {
 
