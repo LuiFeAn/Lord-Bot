@@ -1,4 +1,4 @@
-import LordBot from "./lib/bot";
+import LordBot from "./lib/bot.js";
 
 import env from 'dotenv';
 
@@ -16,17 +16,21 @@ bot.initialize();
 bot.onState([
     {
         name:'initial',
-        execute({ user, owner }) {
+        async execute({ user, owner }) {
 
-           console.log('Está no primeiro');
+           await bot.say(user.number,'Faça uma pergunta !');
+
+           user.stateChanger('gpt');
 
         },
     },
     {
-        name:'twonitial',
-        execute({ user }) {
+        name:'gpt',
+        async execute({ user, owner }) {
+            
+           const response = await bot.gpt(user.message,{type:'official'});
 
-            console.log('Chegou no segundo');
+           bot.say(user.number,response);
 
         },
     }
@@ -36,7 +40,11 @@ bot.onAnyState({
     name:'optional',
     execute({ user }) {
 
-        console.log('Executou');
+        if( user.message[0] === '/'){
+
+
+
+        }
 
     },
 })
