@@ -1,4 +1,4 @@
-import { IBotError } from "../interfaces/bot-err";
+import { IBotError } from "../interfaces/bot-err.js";
 
 export default class BotError extends Error {
 
