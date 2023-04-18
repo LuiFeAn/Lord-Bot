@@ -26,7 +26,7 @@ env.config();
 
 export default class LordBot implements ILordBot {
 
-    name: string
+    readonly name: string
 
     owner: ILordOwnerConstuctor;
 

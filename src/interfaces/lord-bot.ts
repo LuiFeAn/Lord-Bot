@@ -4,7 +4,7 @@ import { ChatMessage } from 'chatgpt';
 
 export interface ILordBot {
 
-    name: string;
+    readonly name: string;
 
     owner: ILordOwnerConstuctor;
 
