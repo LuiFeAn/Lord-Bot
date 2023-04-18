@@ -1,12 +1,14 @@
 import { whatsProvider } from '../providers/whatsapp-provider.js';
 
-import { ILordBot, ILordBotConstructor, IlordBotStates, IGpt } from '../interfaces/lord-bot.js';
+import { ILordBot, ILordBotConstructor, IlordBotStates, IGpt, ILordOwnerConstuctor } from '../interfaces/lord-bot.js';
 
 import qrcode from 'qrcode-terminal';
 
 import { IBotError } from '../interfaces/bot-err.js';
 
 import whatsapp from "whatsapp-web.js";
+
+import Audio from './audio.js';
 
 import env from 'dotenv';
 
@@ -18,19 +20,27 @@ import officialGptService from '../services/official-gpt-service.js';
 
 import unofficialGptService from "../services/unofficial-gpt-service.js";
 
+import BotError from '../errors/bot-err.js';
+
 env.config();
 
 export default class LordBot implements ILordBot {
 
-    name
+    name: string
 
-    owner;
+    owner: ILordOwnerConstuctor;
 
     private states: IlordBotStates []
 
     private multiplyUsers;
 
     userManager: UsersManager;
+
+    gptRequest: boolean
+
+    private audioComponent: Audio;
+
+    private audio: boolean
 
     constructor( { name, owner, multiplyUsers }: ILordBotConstructor  ){
 
@@ -46,7 +56,13 @@ export default class LordBot implements ILordBot {
 
         this.multiplyUsers = multiplyUsers;
 
+        this.gptRequest = false;
+
         this.userManager = new UsersManager();
+
+        this.audioComponent = new Audio();
+        
+        this.audio = false;
 
 
     }
@@ -90,10 +106,8 @@ export default class LordBot implements ILordBot {
 
                     if( this.multiplyUsers ){
     
-                        const userRole = this.owner.number === number ? 
-                        'admin' : 
-                        'common_user';
-    
+                        const userRole = this.owner.number === number ? 'admin' : 'common_user';
+                        
                         this.userManager.addUser({
                             number,
                             state: process.env.INITIAL_STATE as string || 'initial',
@@ -145,10 +159,37 @@ export default class LordBot implements ILordBot {
     }
 
 
-    /** Send a message to the specified number */
-    async say(number: string, message: string){
+    /** Send a message to the specified number with audio or text */
+    async sendMessage(number: string, message: string, options?: { withAudio: boolean }){
 
-        whatsProvider.sendMessage(number,message);
+        const validAudioCondition = options?.withAudio || this.audio;
+
+        let media: undefined | Promise<whatsapp.MessageContent>;
+
+        if( validAudioCondition ) {
+
+            media = this.audioComponent.generate(message,'pt-br');
+
+        }
+
+        try{
+
+            whatsProvider.sendMessage(number,validAudioCondition && 
+                typeof media != 'undefined' ? await media : message,{
+                    sendAudioAsVoice: validAudioCondition ? true : false
+                });
+
+        }catch(err){
+
+             throw new BotError({
+                error:'An error occurred while sending the message'
+             })
+
+        }
+
+    }
+
+    async replyMessage(){
 
     }
 
@@ -157,59 +198,40 @@ export default class LordBot implements ILordBot {
 
         const { state, number, message } = user;
 
-        const execiton = () => {
+        const execution = () => {
 
             return {
 
                 user: {
                     number,
-                    stateChanger: (state: string) => {
-
-                        this.stateChanger(number,state);
-
-                    },
+                    stateChanger: (state: string) => this.stateChanger(number,state),
                     message,
+                    currentState: state,
                 },
-                owner: this.owner,
 
             }
 
         }
 
-        try {
+        this.states.forEach(  async st => {
 
+            const { name, execute } = st;
 
-            const anyState = this.states.find( state => state.name === 'options');
+            if( state === name ){
 
-            if( anyState ){
-
-                anyState.execute(execiton())
+                execute(execution());
 
             }
 
-            this.states.forEach(  async st => {
+            if( name === 'options' ){
 
-                const { name, execute } = st;
-
-                if( state === name ){
-
-                    execute(execiton());
-
-                }
-
-            });
+                execute(execution());
+                
+            }
 
 
-        } catch(err){
-
-            const error = (err as IBotError)
-
-            const { to, message } = error;
-
-            await this.say(to,message);
-
-
-        }
+        });
+        
 
     }
 
@@ -222,41 +244,71 @@ export default class LordBot implements ILordBot {
 
 
     /** Use an API linked to chatGPT to answer different questions */
-    gpt(message: string, { type }: IGpt){
+    async gpt(message: string, { type }: IGpt){
 
-       const verifyType = {
+       if( this.gptRequest ){
 
-        'official': async () => {
+            throw new BotError({
+                error:'Please wait, a request to the gpt server is already being processed'
+            });
 
-            const response = await officialGptService.sendQuestion(message);
+       }
 
-            if( typeof response != "string" ){
-                
-                return response.text;
-                
+        const verifyType = {
+
+            'official': async () => {
+
+                this.gptRequest = true;
+
+                const response = await officialGptService.sendQuestion(message);
+
+                this.gptRequest = false;
+
+                return response;
+
+            },
+
+            'unofficial': async () => {
+
+                this.gptRequest = true;
+
+                const response = await unofficialGptService.sendQuestion(message);
+
+                this.gptRequest = false;
+
+                return response
+
             }
-
-            return response;
-
-        },
-
-        'unofficial': async () => {
-
-            const response = await unofficialGptService.sendQuestion(message);
-
-            if( typeof response != "string" ){
-                
-                return response.text;
-                
-            }
-
-            return response;
 
         }
 
+        try{
+
+            return await verifyType[type]();
+
+        }catch(er){
+            
+            throw new BotError({
+                error:'Unable to connect to OpenAI services at this time'
+             })
+
+        }
+
+
     }
 
-    return verifyType[type]();
+    //* Defines whether or not the bot can send audio /*
+    sendAudio(status: boolean){
+
+        if( typeof status != 'boolean' ){
+
+           throw new BotError({
+                error:'Invalid audio status'
+           });
+
+        }
+
+        this.audio = status;
 
     }
 

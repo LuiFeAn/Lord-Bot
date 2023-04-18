@@ -1,7 +1,6 @@
 
 export interface IBotError {
 
-    to: string;
-    message: string;
+    error: string;
 
 }

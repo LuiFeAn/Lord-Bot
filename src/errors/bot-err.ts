@@ -4,11 +4,11 @@ export default class BotError extends Error {
 
     to;
 
-    constructor({ to, message }: IBotError){
+    constructor({ error }: IBotError){
 
-        super(message);
+        super();
 
-        this.to = to;
+        this.message = error;
 
     }
 

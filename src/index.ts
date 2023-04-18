@@ -1,14 +1,14 @@
 import LordBot from "./lib/bot.js";
+import dotenv from 'dotenv';
 
-import env from 'dotenv';
-
-env.config();
+dotenv.config();
 
 const bot = new LordBot({
-    name: process.env.LORD_BOT_NAME as string,
+    name:'Shazam',
     owner:{
-        number: process.env.OWNER_NUMBER as string,
+        number:process.env.OWNER_NUMBER as string
     },
+    multiplyUsers:true
 });
 
 bot.initialize();
@@ -16,35 +16,18 @@ bot.initialize();
 bot.onState([
     {
         name:'initial',
-        async execute({ user, owner }) {
-
-           await bot.say(user.number,'Faça uma pergunta !');
-
-           user.stateChanger('gpt');
-
-        },
-    },
-    {
-        name:'gpt',
-        async execute({ user, owner }) {
+        execute({ user }) {
             
-           const response = await bot.gpt(user.message,{type:'official'});
-
-           bot.say(user.number,response);
+            bot.sendAudio(true);
 
         },
     }
 ]);
 
+
 bot.onAnyState({
-    name:'optional',
+    name:'a',
     execute({ user }) {
-
-        if( user.message[0] === '/'){
-
-
-
-        }
-
+        
     },
 })

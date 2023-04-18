@@ -6,7 +6,7 @@ export interface ILordBot {
 
     initialize(): void;
 
-    say(number: string, message: string): Promise<void>
+    sendMessage(number: string, message: string, options?: { withAudio: boolean }): Promise<void>
 
     onState(states: IlordBotStates []): void
 
@@ -28,14 +28,15 @@ export interface IlordBotStates {
      /** 
            Function that performs a certain action according to the current state of a user
       */
-    execute: ({ user, owner }: { user: {
+    execute: ({ user }: { user: {
         number: string,
         /** 
             Switches the current state of a user to another state
          */
         stateChanger(state: string): void,
+        currentState: string
         message: string
-    }, owner: ILordOwnerConstuctor }) => any
+    }}) => any
 }
 
 
