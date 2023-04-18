@@ -1,16 +1,26 @@
 import whatsapp from 'whatsapp-web.js';
+import UsersManager from '../lib/users-manager.js';
+import { ChatMessage } from 'chatgpt';
 
 export interface ILordBot {
 
     name: string;
 
-    initialize(): void;
+    owner: ILordOwnerConstuctor;
 
-    sendMessage(number: string, message: string, options?: { withAudio: boolean }): Promise<void>
+    userManager: UsersManager;
 
-    onState(states: IlordBotStates []): void
+    gptRequest: boolean;
 
-    onAnyState(state: IlordBotStates): void
+    initialize(): Promise<void>;
+
+    sendMessage(number: string, message: string, options?: { withAudio: boolean }): Promise<void>;
+
+    replyMessage(): Promise<void>;
+
+    onState(states: IlordBotStates[]): void;
+
+    gpt(message: string, { type }: IGpt): Promise<string | ChatMessage>;
 
 }
 
