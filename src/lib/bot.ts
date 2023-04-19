@@ -1,10 +1,8 @@
 import { whatsProvider } from '../providers/whatsapp-provider.js';
 
-import { ILordBot, ILordBotConstructor, IlordBotStates, IGpt, ILordOwnerConstuctor } from '../interfaces/lord-bot.js';
+import { ILordBot, ILordBotConstructor, IlordBotStates, IGpt, ILordOwnerConstuctor, StateExecution } from '../interfaces/lord-bot.js';
 
 import qrcode from 'qrcode-terminal';
-
-import { IBotError } from '../interfaces/bot-err.js';
 
 import whatsapp from "whatsapp-web.js";
 
@@ -26,14 +24,19 @@ env.config();
 
 export default class LordBot implements ILordBot {
 
+    /** Nome of BOT */
     readonly name: string
 
+    /** Onwer(ADMIN) of BOT */
     owner: ILordOwnerConstuctor;
 
-    private states: IlordBotStates []
+    private states: IlordBotStates [];
+
+    private anyState: StateExecution | undefined;
 
     private multiplyUsers;
 
+    /** Defines if bot can be used by other users */
     userManager: UsersManager;
 
     gptRequest: boolean
@@ -61,8 +64,10 @@ export default class LordBot implements ILordBot {
         this.userManager = new UsersManager();
 
         this.audioComponent = new Audio();
-        
+
         this.audio = false;
+
+        this.anyState;
 
 
     }
@@ -101,13 +106,13 @@ export default class LordBot implements ILordBot {
             const  createFindOrUpdateUser = (): IUser | void => {
 
                 const user = this.userManager.getUser(number);
-    
+
                 if( !user ){
 
                     if( this.multiplyUsers ){
-    
+
                         const userRole = this.owner.number === number ? 'admin' : 'common_user';
-                        
+
                         this.userManager.addUser({
                             number,
                             state: process.env.INITIAL_STATE as string || 'initial',
@@ -116,8 +121,8 @@ export default class LordBot implements ILordBot {
                         });
 
                         return createFindOrUpdateUser();
-                        
-    
+
+
                     }
 
                     if( this.owner.number === number ){
@@ -132,15 +137,15 @@ export default class LordBot implements ILordBot {
                         return createFindOrUpdateUser();
 
                     }
-    
-    
+
+
                 }
 
                 user!.message = body;
-    
+
                 this.stateManager(user!);
-    
-    
+
+
             }
 
             createFindOrUpdateUser();
@@ -174,7 +179,7 @@ export default class LordBot implements ILordBot {
 
         try{
 
-            whatsProvider.sendMessage(number,validAudioCondition && 
+            whatsProvider.sendMessage(number,validAudioCondition &&
                 typeof media != 'undefined' ? await media : message,{
                     sendAudioAsVoice: validAudioCondition ? true : false
                 });
@@ -186,10 +191,6 @@ export default class LordBot implements ILordBot {
              })
 
         }
-
-    }
-
-    async replyMessage(){
 
     }
 
@@ -213,6 +214,8 @@ export default class LordBot implements ILordBot {
 
         }
 
+        if(typeof this.anyState != 'undefined') this.anyState(execution());
+
         this.states.forEach(  async st => {
 
             const { name, execute } = st;
@@ -223,15 +226,9 @@ export default class LordBot implements ILordBot {
 
             }
 
-            if( name === 'options' ){
-
-                execute(execution());
-                
-            }
-
 
         });
-        
+
 
     }
 
@@ -287,7 +284,7 @@ export default class LordBot implements ILordBot {
             return await verifyType[type]();
 
         }catch(er){
-            
+
             throw new BotError({
                 error:'Unable to connect to OpenAI services at this time'
              })
@@ -313,11 +310,9 @@ export default class LordBot implements ILordBot {
     }
 
     //** Function executed whenever a user sends a message, regardless of the current state. A state is basically the level where a user is  */
-    onAnyState(state: IlordBotStates ){
+    onAnyState(state: StateExecution ){
 
-        state.name = 'options';
-
-        this.states.push(state);
+        this.anyState = state;
 
     }
 
