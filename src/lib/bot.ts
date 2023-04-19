@@ -1,6 +1,6 @@
 import { whatsProvider } from '../providers/whatsapp-provider.js';
 
-import { ILordBot, ILordBotConstructor, IlordBotStates, IGpt, ILordOwnerConstuctor, StateExecution } from '../interfaces/lord-bot.js';
+import { ILordBotConstructor, IlordBotStates, IGpt, ILordOwnerConstuctor, StateExecution } from '../interfaces/lord-bot.js';
 
 import qrcode from 'qrcode-terminal';
 
@@ -22,7 +22,7 @@ import BotError from '../errors/bot-err.js';
 
 env.config();
 
-export default class LordBot implements ILordBot {
+export default class LordBot {
 
     /** Nome of BOT */
     readonly name: string
@@ -34,12 +34,12 @@ export default class LordBot implements ILordBot {
 
     private anyState: StateExecution | undefined;
 
+    /** Defines if bot can be used by other users */
     private multiplyUsers;
 
-    /** Defines if bot can be used by other users */
     userManager: UsersManager;
 
-    gptRequest: boolean
+    private gptRequest: boolean
 
     private audioComponent: Audio;
 
