@@ -10,12 +10,14 @@ class UsersManager {
 
     }
 
+    /** Add an User to memory */
     addUser(user: IUser){
 
         this.users.push(user);
 
     }
 
+    /** Get an User */
     getUser(number: string){
 
         const user = this.users.find( user => user?.number === number);
@@ -24,6 +26,7 @@ class UsersManager {
 
     }
 
+    /** Get all users connecteds on BOT */
     get allUsers(){
 
         return this.users;
