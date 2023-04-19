@@ -1,5 +1,4 @@
 import { officialGpt } from "../providers/chatgpt-provider.js";
-import { ChatMessage } from "chatgpt";
 import dotenv from 'dotenv';
 import BotError from "../errors/bot-err.js";
 
@@ -8,7 +7,7 @@ dotenv.config();
 
 export default {
 
-    sendQuestion(message: string): Promise<ChatMessage> | string{
+    sendQuestion(message: string) {
 
         if( !process.env.OPENAI_API_KEY ){
 
