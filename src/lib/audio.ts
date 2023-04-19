@@ -4,14 +4,15 @@ import fs from 'fs';
 
 export default class Audio {
 
+    /** Converts an text to audio */
     generate(text: string, leng: string): Promise<Whatsapp.MessageContent> {
 
         return new Promise((resolve,reject) => {
 
             const randomNumber = Math.floor(Math.random() * 2000);
 
-            const fileName = `audio-${randomNumber}.mp3`;    
-            
+            const fileName = `audio-${randomNumber}.mp3`;
+
             const Gtts = new gtts(text,leng);
 
             Gtts.save(fileName,function(err:any,result:any){
@@ -31,5 +32,5 @@ export default class Audio {
 
     }
 
-    
+
 }
